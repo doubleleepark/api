@@ -13,15 +13,16 @@ def insert_exhibitions(connection, exhibitions):
     """전시회 정보를 데이터베이스에 삽입"""
     with connection.cursor() as cursor:
         sql = """
-        INSERT INTO exhibitions (name, latitude, longitude, start_date, end_date, description)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO exhibitions (exhibition_img, name, latitude, longitude, start_date, end_date, description)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         for exhibition in exhibitions:
+            exhibition_img = exhibition[0]
             name = exhibition[1]
             start_date, end_date = exhibition[2]
             latitude, longitude = exhibition[3]
             description = exhibition[4]
-            cursor.execute(sql, (name, latitude, longitude, start_date, end_date, description))
+            cursor.execute(sql, (exhibition_img, name, latitude, longitude, start_date, end_date, description))
         connection.commit()
 
 # 데이터베이스 연결 설정
@@ -31,7 +32,6 @@ db_config = {
     'password': 'restartart',
     'database': 'restartdb'
 }
-
 # 데이터베이스 연결
 db_connection = connect_db(db_config)
 
