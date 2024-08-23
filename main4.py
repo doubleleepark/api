@@ -9,6 +9,8 @@ import random
 import pymysql
 import logging
 from collections import Counter
+from fastapi import Query
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mkapi.image_utils import analyze_images_and_cluster, find_signiture_color, exact_match, count_matches, \
@@ -195,8 +197,8 @@ class lat_long_input(BaseModel):
     lat_input: float = 37.5173319258532
     long_input: float = 127.047377408384
 
-@app.post('/find_near_exhibition/')
-async def find_near_exhibition(location: lat_long_input):
+@app.get('/find_near_exhibition/')
+async def find_near_exhibition(lat_input: float = Query(...), long_input: float = Query(...)):
     cursor = db_connection.cursor()
     cursor.execute("SELECT name FROM exhibitions")
     exhibition = [row['name'] for row in cursor.fetchall()]
@@ -209,29 +211,30 @@ async def find_near_exhibition(location: lat_long_input):
         [exhibition[i], [float(exhibition2[i]), float(exhibition3[i])]]
         for i in range(len(exhibition))
     ]
-
-    real_exhibition = []
-    real_exhibition.append(location.lat_input)
-    real_exhibition.append(location.long_input)
-    loaction_ex = lat_long(
-        lat_long_list=real_exhibition
-    )
-
+    
+    # 사용자의 위치 정보 설정
+    user_location = [lat_input, long_input]
+    location_ex = lat_long(lat_long_list=user_location)
+    
+    # 반경 설정
     radius = 5
-    exhibition_information = find_nearby_exhibitions(loaction_ex.lat_long_list, exhibition_info, radius)
-
-    detailed_exhibitions = []
-    cursor.execute("SELECT start_date, end_date, description FROM exhibitions WHERE name = %s", (exhibition_information,))
+    # 가장 가까운 전시회를 찾는 로직
+    nearest_exhibition_name = find_nearby_exhibitions(location_ex.lat_long_list, exhibition_info, radius)
+    
+    # 상세 전시회 정보 가져오기
+    cursor.execute("SELECT start_date, end_date, description FROM exhibitions WHERE name = %s", (nearest_exhibition_name,))
     result = cursor.fetchone()
+    detailed_exhibition = {}
+
     if result:
-        detailed_exhibitions.append({
-            'name': exhibition_information,
+        detailed_exhibition = {
+            'name': nearest_exhibition_name,
             'start_date': result['start_date'],
             'end_date': result['end_date'],
             'description': result['description']
-            })
+        }
 
-    return detailed_exhibitions
+    return detailed_exhibition
 
 
 @app.post("/leaflet_creating/")
