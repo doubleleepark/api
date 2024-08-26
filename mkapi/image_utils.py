@@ -229,14 +229,14 @@ def find_best_matching_images(user_images_urls, image_url_list, similarity_thres
             user_images.append((url, img))
 
     # Apply blur and restore images
-    restored_user_images = restore_image(user_images)
-    #print(len(restored_user_images))
+    #restored_user_images = restore_image(user_images)
+    # print(len(restored_user_images))
     valid_urls2 = {
         'url': [],
         'color_cluster_ratio': []
     }
 
-    for user_filename, user_img in restored_user_images:
+    for user_filename, user_img in user_images:
         best_match_url = None
         best_similarity = 0
         kk = 0
@@ -249,10 +249,13 @@ def find_best_matching_images(user_images_urls, image_url_list, similarity_thres
                 jj = kk
             kk += 1
         if best_similarity >= similarity_threshold:
-
             valid_urls2['url'].append(best_match_url)
             valid_urls2['color_cluster_ratio'].append(image_url_list['color_cluster_ratio'][jj])
-
+    if valid_urls2['url'] == []:
+      for i in range(4):
+        kk2 = np.random.choice(len(image_url_list),1)
+        valid_urls2['url'].append(image_url_list['url'][kk2])
+        valid_urls2['url'].append(image_url_list['color_cluster_ratio'][kk2])
     return valid_urls2
 
     
