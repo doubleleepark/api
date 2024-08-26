@@ -215,13 +215,12 @@ def colormatching(randomrgb):
 #     sorted_results = sorted(results, key=lambda x: x[2], reverse=True)
 #     return sorted_results
 
-def find_best_matching_images(user_images_urls, image_url_list, similarity_threshold=0.1, central_region_size=100):
+def find_best_matching_images(user_images_urls, image_url_list, similarity_threshold=0.1):
     exhibition_images = []
     for url in image_url_list['url']:
         img = load_image_from_url_with_requests(url)
         if img is not None:
             exhibition_images.append((url, img))
-
 
     user_images = []
     for url in user_images_urls:

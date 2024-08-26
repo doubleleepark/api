@@ -222,7 +222,7 @@ async def find_near_exhibition(lat_input: float = Query(...), long_input: float 
     nearest_exhibition_name = find_nearby_exhibitions(location_ex.lat_long_list, exhibition_info, radius)
     
     # 상세 전시회 정보 가져오기
-    cursor.execute("SELECT start_date, end_date, description FROM exhibitions WHERE name = %s", (nearest_exhibition_name,))
+    cursor.execute("SELECT start_date, end_date, description,exhibition_img FROM exhibitions WHERE name = %s", (nearest_exhibition_name,))
     result = cursor.fetchone()
     detailed_exhibition = {}
 
@@ -231,7 +231,8 @@ async def find_near_exhibition(lat_input: float = Query(...), long_input: float 
             'name': nearest_exhibition_name,
             'start_date': result['start_date'],
             'end_date': result['end_date'],
-            'description': result['description']
+            'description': result['description'],
+            "exhibition_img":result["exhibition_img"]
         }
 
     return detailed_exhibition
