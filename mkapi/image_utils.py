@@ -105,8 +105,8 @@ def find_matching_images(data: ImageData, image_url_list2):
         raise HTTPException(status_code=400, detail="The user images URL list is empty.")
     
     matching_urls = find_best_matching_images(data.user_images_urls, image_url_list2)
-    
-    return {"matching_urls": matching_urls}
+
+    return {'matching_urls': matching_urls}
 
 def exact_match(emotions, target):
     return set(emotions) == set(target)
@@ -364,3 +364,19 @@ def find_nearby_exhibitions(current_location, exhibitions, radius):
     else:
         info = None
     return info
+
+
+List1 = ["Cinnabar", "Paris Daisy", "Corn Field", "Kournikova", "Tangerine Yellow", "Pumpkin", "Harvest Gold", "Brandy Rose", "Granite Green", "Manz", "Cioccolato", "Deep Bronze", "Metallic Copper", "Feldspar", "Vesuvius", "Lemon Ginger", "Costa Del Sol"]
+List2 = ["White Smoke", "Wistful", "Tonys Pink", "Wafer", "Granny Smith", "Wheat", "Pale Rose", "Oyster Pink", "Opal", "London Hue", "Mandy", "Chetwode Blue", "Aqua Squeeze", "Sprout", "Oxley", "Seagull", "Gulf Stream", "Heather", "Hawkes Blue"]
+List3 = ["Black", "Persian Indigo", "Cobalt", "Wild Willow", "Cerulean", "Timber Green", "Palm Green", "Tiber", "Tamarillo", "Apple Blossom", "Surfie Green", "Blue Lagoon", "Guardsman Red"]
+List4 = ["Matterhorn", "Nobel", "Very Light Grey", "Bahia", "Gossip", "Dark Pastel Green", "Shamrock Green", "Salem", "Eastern Blue", "Chelsea Cucumber", "Fun Green", "Deep Teal", "Camarone", "Vida Loca", "Green House", "Siam"]
+
+def leaflet_design(dominant_color):
+    if dominant_color in List1:
+      return 1
+    elif dominant_color in List2:
+      return 2
+    elif dominant_color in List3:
+      return 3
+    else:
+      return 4

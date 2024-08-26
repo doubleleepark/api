@@ -14,7 +14,7 @@ from fastapi import Query
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mkapi.image_utils import analyze_images_and_cluster, find_signiture_color, exact_match, count_matches, \
-    find_matching_images, random_exhibition, find_nearby_exhibitions
+    find_matching_images, random_exhibition, find_nearby_exhibitions, leaflet_design
 
 app = FastAPI()
 
@@ -364,7 +364,9 @@ async def leaflet_creating(image_data: ImageData):
         exhibition = cursor.fetchall()
 
         recom_exhibition = random_exhibition(exhibition)
-
+        leaflet_color = leaflet_design(str(dominant_color))
+        text_user['leaflet_design'] = leaflet_color
+        
         text_user['user_rgb'] = user_rgb
         text_user['recom_picture1'] = recommend_picture_list
         text_user['recom_picture2'] = recommend_picture_list2
