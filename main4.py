@@ -13,8 +13,7 @@ from fastapi import Query
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from mkapi.image_utils import analyze_images_and_cluster, find_signiture_color, exact_match, count_matches, \
-    find_matching_images, random_exhibition, find_nearby_exhibitions, leaflet_design
+from mkapi.image_utils import analyze_images_and_cluster, find_signiture_color, exact_match, count_matches, find_matching_images, random_exhibition, find_nearby_exhibitions, leaflet_design
 
 app = FastAPI()
 
@@ -268,13 +267,16 @@ async def leaflet_creating(image_data: ImageData):
 
         # 2. 스펙트럴 클러스터링 하기
         analysis_result = analyze_images_and_cluster(
-            matching_urls
+            matching_urls,result
         )
 
         # 3. 취향분석하기
         #max_color = 0
-
-        color_number_one = find_signiture_color(matching_urls['color_cluster_ratio'])
+        
+        if matching_urls['url'] != []:
+            color_number_one = find_signiture_color(matching_urls['color_cluster_ratio'])
+        else:
+            color_number_one = find_signiture_color(random.choices(result['color_cluster_ratio'],k=4))
         print(color_number_one)
         text_user = {}
         for i in color_dict.keys():

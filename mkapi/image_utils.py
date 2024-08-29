@@ -253,45 +253,44 @@ def find_best_matching_images(user_images_urls, image_url_list, similarity_thres
 def gaussian_kernel(x, y, sigma=1.0):
     return np.exp(-np.linalg.norm(x - y) ** 2 / (2 * (sigma ** 2)))
 
-def analyze_images_and_cluster(user_images_urls, num_clusters_image: int = 10, num_clusters_spectral: int = 4, sigma: float = 30):
+
+
+def analyze_images_and_cluster(user_images_urls, result, num_clusters_spectral: int = 4, sigma: float = 30):
     #matching_urls = user_images_urls
+    print(user_images_urls['url'])
     if len(user_images_urls['url'])>4:
         final_dict = {}
-
         kkk = 0
         for image_url in user_images_urls['url']:
             final_dict[image_url] = tuple(json.loads(user_images_urls['color_cluster_ratio'][kkk])[0][1])
             kkk +=1
-
         rgb_colors = [value for value in final_dict.values()]
         rgb_colors_array = np.array(rgb_colors)
-
         n_samples = len(rgb_colors)
         similarity_matrix = np.zeros((n_samples, n_samples))
-
         for i in range(n_samples):
             for j in range(n_samples):
                 similarity_matrix[i, j] = gaussian_kernel(rgb_colors_array[i], rgb_colors_array[j], sigma)
-
         spectral = SpectralClustering(n_clusters=num_clusters_spectral, affinity='precomputed')
         labels = spectral.fit_predict(similarity_matrix)
-
         cluster_centers = np.array([rgb_colors_array[labels == i].mean(axis=0) for i in range(num_clusters_spectral)], dtype=int)
-
         target_keys = []
         for center in cluster_centers:
             distances = cdist([center], rgb_colors_array, metric='euclidean')[0]
             closest_index = np.argmin(distances)
             closest_color = rgb_colors_array[closest_index]
+            rgb_colors_array = np.delete(rgb_colors_array, closest_index, axis=0)
             possible_keys = [key for key, value in final_dict.items() if np.array_equal(value, closest_color)]
             selected_key = np.random.choice(possible_keys)
             target_keys.append(selected_key)
-
     elif len(user_images_urls['url']) == 4:
         target_keys = user_images_urls['url']
+    elif user_images_urls['url'] == []:
+        target_keys = random.choices(result['url'], k=4)
     else:
         target_keys = random.choices(user_images_urls['url'], k=4)
     return target_keys
+
 
 def find_signiture_color(user_images_urls, num_clusters=10):
     color_list = []
