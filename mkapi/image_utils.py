@@ -215,32 +215,27 @@ def colormatching(randomrgb):
 #     sorted_results = sorted(results, key=lambda x: x[2], reverse=True)
 #     return sorted_results
 
-def find_best_matching_images(user_images_urls, image_url_list, similarity_threshold=0.1):
+
+def find_best_matching_images(user_images_urls, image_url_list, similarity_threshold=0.2):
     exhibition_images = []
     for url in image_url_list['url']:
         img = load_image_from_url_with_requests(url)
         if img is not None:
             exhibition_images.append((url, img))
-
     user_images = []
     for url in user_images_urls:
         img = load_image_from_url_with_requests(url)
         if img is not None:
             user_images.append((url, img))
-
-    # Apply blur and restore images
-    #restored_user_images = restore_image(user_images)
-    # print(len(restored_user_images))
     valid_urls2 = {
         'url': [],
         'color_cluster_ratio': []
     }
-
     for user_filename, user_img in user_images:
         best_match_url = None
         best_similarity = 0
-        kk = 0
-        jj = 0
+        kk=0
+        jj=0
         for exhibition_filename, exhibition_img in exhibition_images:
             similarity = compare_images(user_img, exhibition_img)
             if similarity >= best_similarity:
@@ -249,13 +244,9 @@ def find_best_matching_images(user_images_urls, image_url_list, similarity_thres
                 jj = kk
             kk += 1
         if best_similarity >= similarity_threshold:
-            valid_urls2['url'].append(best_match_url)
-            valid_urls2['color_cluster_ratio'].append(image_url_list['color_cluster_ratio'][jj])
-    if valid_urls2['url'] == []:
-      for i in range(4):
-        kk2 = np.random.choice(len(image_url_list),1)
-        valid_urls2['url'].append(image_url_list['url'][kk2])
-        valid_urls2['url'].append(image_url_list['color_cluster_ratio'][kk2])
+            if best_match_url not in valid_urls2['url']:
+                valid_urls2['url'].append(best_match_url)
+                valid_urls2['color_cluster_ratio'].append(image_url_list['color_cluster_ratio'][jj])
     return valid_urls2
 
     
