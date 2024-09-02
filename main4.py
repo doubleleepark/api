@@ -14,8 +14,24 @@ from fastapi import Query
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mkapi.image_utils import analyze_images_and_cluster, find_signiture_color, exact_match, count_matches, find_matching_images, random_exhibition, find_nearby_exhibitions, leaflet_design
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+
+# Define CORS settings
+origins = ["*"]  # Allow requests from any origin
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
+
 
 color_dict = {'Cinnabar': ['(207, 46, 49)',
                            '당신은 Cinnabar (207, 46, 49)의 취향을 가진 사람입니다. Cinnabar색에 끌리는 당신은 강렬하고 열정적인 성격을 가진 사람입니다.'],
