@@ -301,7 +301,7 @@ async def find_near_exhibition(lat_input: float = Query(...), long_input: float 
     location_ex = lat_long(lat_long_list=user_location)
     
     # 반경 설정
-    radius = 20
+    radius = 100
     # 가장 가까운 전시회를 찾는 로직
     nearest_exhibition_name = find_nearby_exhibitions(location_ex.lat_long_list, exhibition_info, radius)
     
