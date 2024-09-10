@@ -324,10 +324,10 @@ async def find_near_exhibition(lat_input: float = Query(...), long_input: float 
 @app.post("/leaflet_creating/")
 async def leaflet_creating(image_data: ImageData):
     cursor = db_connection.cursor()
-    cursor.execute("SELECT url FROM images_exhibition_10")
+    cursor.execute("SELECT url FROM images_exhibition_13")
     row_images = [row['url'] for row in cursor.fetchall()]
 
-    cursor.execute("SELECT color_cluster_ratio FROM images_exhibition_10")
+    cursor.execute("SELECT color_cluster_ratio FROM images_exhibition_13")
     row_images2 = [row['color_cluster_ratio'] for row in cursor.fetchall()]
 
     result = {
@@ -448,7 +448,7 @@ async def leaflet_creating(image_data: ImageData):
                 recommend_picture_list2.append(rrow[i]['title'])
                 recommend_picture_list2.append(rrow[i]['author'])
 
-        cursor.execute("SELECT * FROM exhibitions")
+        cursor.execute("SELECT * FROM exhibitions WHERE exhibition_id = %s OR exhibition_id = %s", (11, 12))
         exhibition = cursor.fetchall()
 
         recom_exhibition = random_exhibition(exhibition)
