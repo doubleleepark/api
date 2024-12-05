@@ -10,7 +10,10 @@ import pymysql
 import logging
 from collections import Counter
 from fastapi import Query
-
+from utils import process_image, process_text, encode_targets
+import joblib
+import pandas as pd
+import numpy as np
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mkapi.image_utils import analyze_images_and_cluster, find_signiture_color, exact_match, count_matches, find_matching_images, random_exhibition, find_nearby_exhibitions, leaflet_design
@@ -280,6 +283,59 @@ class lat_long_input(BaseModel):
     lat_input: float = 37.5173319258532
     long_input: float = 127.047377408384
 
+class ImageData(BaseModel):
+    user_images_urls: List[HttpUrl]
+
+class TextExplain(BaseModel):
+    text: str
+@app.post('/find_emotion_interior/')
+async def find_emotion_interior(image_data: ImageData, text_data: TextExplain):
+    try:
+        # 데이터베이스에서 데이터 가져오기
+        cursor = db_connection.cursor()
+        cursor.execute("SELECT url FROM images_exhibition_13")
+        row_images = [row['url'] for row in cursor.fetchall()]
+        cursor.execute("SELECT emotions FROM images_exhibition_13")
+        row_images2 = [row['emotions'] for row in cursor.fetchall()]
+
+        result = {'url': row_images, 'emotions': row_images2}
+        
+
+        # 이미지 데이터 처리
+        interior_image = process_image(image_data)
+        
+        # 텍스트 데이터 처리
+        interior_text = process_text(text_data)
+        print("interior_text", interior_text)
+        # 데이터 결합
+        final_data = np.hstack((interior_image, interior_text))
+        columns = ['mean_r', 'mean_g', 'mean_b', 'mean_hue', 'mean_saturation', 'mean_value'] + \
+                  [f'tfidf_{i+1}' for i in range(interior_text.shape[1])]
+
+        # DataFrame 생성
+        df = pd.DataFrame(final_data, columns=columns)
+        print("DataFrame:", df)
+        print(df.columns)
+        # 모델 로드 및 예측
+        model = joblib.load('rf_model_joblib.md')
+        target = model.predict(df)
+        sample_targets = ["행복", "기쁨", "사랑", "세련됨", "감각적", "호기심", "경외심", "슬픔", "미움", "걱정", "혼란", "공포", "노여움", "욕심", "동정"]
+        encoded_targets, target_classes = encode_targets(sample_targets)
+        print(target_classes[target])
+        real_result = []
+        kk = 0
+        for i in result['emotions']:
+            if (target_classes[target]==i):
+                real_result.append(result['url'][kk])
+            kk += 1
+        if real_result == []:
+            real_result = random.choice(result['url'])
+
+        return {'prediction': real_result}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+    
 @app.get('/find_near_exhibition/')
 async def find_near_exhibition(lat_input: float = Query(...), long_input: float = Query(...)):
     cursor = db_connection.cursor()
